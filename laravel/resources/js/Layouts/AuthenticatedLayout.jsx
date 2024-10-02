@@ -5,9 +5,10 @@ import ResponsiveNavLink from '@/Components/ResponsiveNavLink';
 import { Link, usePage } from '@inertiajs/react';
 import { useState } from 'react';
 
-export default function Authenticated({ header, children }) {
-    const user = usePage().props.auth.user;
 
+export default function Authenticated({ header, children }) {
+    const page = usePage();
+    const user = usePage().props.auth.user;
     const [showingNavigationDropdown, setShowingNavigationDropdown] =
         useState(false);
 
