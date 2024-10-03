@@ -16,7 +16,7 @@ class MessageController extends Controller
         $messages = Message::where("sender_id", auth()->id())
             ->where("receiver_id", $user->id)
             ->orWhere("sender_id", $user->id)
-            ->where("receiver", auth()->id())
+            ->where("receiver_id", auth()->id())
             ->latest()
             ->paginate(10);
 
