@@ -2,6 +2,8 @@
 
 namespace Database\Factories;
 
+use App\Models\Group;
+use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -16,31 +18,37 @@ class MessageFactory extends Factory
      */
     public function definition(): array
     {
-        $sender_id = $this->faker->randomElement([0, 1]);
-        if ($sender_id === 0) {
-            $receiver_id = 1;
-            $sender_id = $this->faker->randomElement(\App\Models\User::where
-            ('users.id', '!=', 1)
-                ->pluck("users.id")->toArray());
-        } else {// $sender_id is 1
-            $receiver_id = $this->faker->randomElement(\App\Models\User::where
-            ('users.id', '!=', 1)
-                ->pluck("id")->toArray());
+        $senderId = $this->faker->randomElement([0, 1]);
+        if ($senderId === 0) {
+            $senderId = $this->faker
+                ->randomElement(User::where('id', '!=', 1)->pluck('id')
+                    ->toArray());
+            $receiverId = 1;
+        } else {
+            $receiverId = $this->faker
+                ->randomElement(User::pluck('id')
+                    ->toArray());
         }
 
-        $group_id = null;
+        $groupId = null;
         if ($this->faker->boolean(50)) {
-            $group_id = $this->faker->randomElement(\App\Models\Group::pluck("groups.id")->toArray());
-            $group = \App\Models\Group::find($group_id);
-            $sender_id = $this->faker->randomElement($group->users()->pluck("users.id")->toArray());
-            $receiver_id = null;
+            $groupId = $this->faker
+                ->randomElement(Group::pluck('id')
+                    ->toArray());
+            $group = Group::find($groupId);
+            $senderId = $this->faker
+                ->randomElement($group->users()->pluck('id')
+                    ->toArray());
+
+            $receiverId = null;
         }
         return [
+            'sender_id' => $senderId,
+            'receiver_id' => $receiverId,
+            'group_id' => $groupId,
             'message' => $this->faker->realText(200),
-            'sender_id' => $sender_id,
-            'receiver_id' => $receiver_id,
-            'group_id' => $group_id,
             'created_at' => $this->faker->dateTimeBetween('-1 year', 'now'),
+
         ];
     }
 }
