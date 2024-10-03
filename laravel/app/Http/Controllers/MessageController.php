@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Resources\MessageResource;
+use App\Models\Conversation;
 use App\Models\Group;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -70,12 +71,53 @@ class MessageController extends Controller
 
     public function store(Request $request)
     {
+        $data = $request->validated();
+        $data['sender_id'] = auth()->id();
+        $receiverId = $data['receiver_id'] ?? null;
+        $groupId = $data['group_id'] ?? null;
+        $files = $data['attachments'] ?? null;
 
+        $message = Message::create($data);
+
+        $attachments = [];
+        if ($files) {
+            foreach ($files as $file) {
+                $directory = 'attachments/' . Str::random(32);
+                StoreageStorage::makeDirectory($directory);
+
+                $model = [
+                    'message_id' => $message->id,
+                    'name' => $file->getClientOriginalName(),
+                    'mime' => $file->getClientMimeType(),
+                    'size' => $file->getSize(),
+                    'path' => $file->store($directory, 'public'),
+                ];
+                $attachment = Attachment::create($model);
+                $attachments[] = $attachment;
+            }
+            $message->attachments = $attachments;
+        }
+
+        if ($receiverId) {
+            Conversation::updateConversationWithMessage($receiverId, auth()->id(), $message);
+        }
+
+        if ($groupId) {
+            Group::updateGroupWithMessage($groupId, $message);
+        }
+
+        SocketMessage::dispatch($message);
+
+        return new MessageResource($message);
     }
 
     public function destroy(Message $message)
     {
+        if ($message->sender_id !== auth()->id()) {
+            return response()->json(['message' => 'Forbidden'], 403);
+        }
 
+        $message->delete();
+        return response('', 204);
     }
-
 }
