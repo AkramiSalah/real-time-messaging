@@ -8,6 +8,7 @@ use App\Models\Group;
 use App\Models\User;
 use Illuminate\Http\Request;
 use App\Models\Message;
+use Storage;
 
 class MessageController extends Controller
 {
@@ -19,6 +20,7 @@ class MessageController extends Controller
             ->where("receiver_id", auth()->id())
             ->latest()
             ->paginate(10);
+
 
         return inertia(
             "Home",
@@ -83,8 +85,7 @@ class MessageController extends Controller
         if ($files) {
             foreach ($files as $file) {
                 $directory = 'attachments/' . Str::random(32);
-                StoreageStorage::makeDirectory($directory);
-
+                Storage::makeDirectory($directory);
                 $model = [
                     'message_id' => $message->id,
                     'name' => $file->getClientOriginalName(),
