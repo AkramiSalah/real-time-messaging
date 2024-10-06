@@ -64,10 +64,10 @@ class MessageController extends Controller
                     $query->where('sender_id', $message->sender_id)
                         ->where('receiver_id', $message->receiver_id)
                         ->orWhere('sender_id', $message->receiver_id)
-                        ->where('receiver_id', $message->sender_id)
-                        ->latest()
-                        ->paginate(10);
-                });
+                        ->where('receiver_id', $message->sender_id);
+                })
+                ->latest()
+                ->paginate(10);
         }
 
         return MessageResource::collection($messages);
