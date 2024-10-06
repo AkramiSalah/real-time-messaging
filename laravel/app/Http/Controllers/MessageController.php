@@ -9,6 +9,8 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use App\Models\Message;
 use Storage;
+use App\Events\SocketMessage;
+use App\Http\Requests\StoreMessageRequest;
 
 class MessageController extends Controller
 {
@@ -71,7 +73,7 @@ class MessageController extends Controller
         return MessageResource::collection($messages);
     }
 
-    public function store(Request $request)
+    public function store(StoreMessageRequest $request)
     {
         $data = $request->validated();
         $data['sender_id'] = auth()->id();
