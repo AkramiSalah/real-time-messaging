@@ -7,12 +7,62 @@ import {
     PaperAirplaneIcon
 } from "@heroicons/react/24/solid"
 import NewMessageInput from './NewMessageInput';
+import axios from "axios";
 
 const MessageInput = ({conversation = null}) => {
     const [newMessage,setNewMessage] = useState("")
     const[inputErrorMessage,setInputErrorMessage] = useState("")
     const[messageSending,setMessageSending] = useState(false)
 
+    const onSendClick = () => {
+        if(newMessage.trim() === ""){
+            setInputErrorMessage("Please provide a message or upload an attachment.")
+            setTimeout(()=>{setInputErrorMessage("")}, 3000);
+            return;
+        }
+
+        const formData = new FormData();
+        formData.append("message", newMessage);
+        if(conversation.is_user){
+            formData.append("receiver_id", conversation.id);
+        }else if( conversation.is_group){
+            formData.append("group_id", conversation.id);
+        }
+
+        setMessageSending(true);
+        // axios.post(route("message.store"), formData, {
+        //     onUploadProgress: (progressEvent) => {
+        //         const progress = Math.round((progressEvent.loaded/progressEvent.total)*100);
+        //         console.log(progress, "%")
+        //     }
+        // }).then((res) => {
+        //     setNewMessage("");
+        //     setMessageSending(false);
+        // }).catch((err) => {
+        //     setMessageSending(false);
+        // });
+
+        axios
+            .post(route("message.store"), formData, {
+                onUploadProgress: (ProgressEvent) => {
+                    const progress = Math.round(
+                        (ProgressEvent.loaded / ProgressEvent.total) * 100
+                    );
+                    console.log(progress);
+                },
+            })
+            .then((response) => {
+                setNewMessage("");
+                setMessageSending(false);
+            })
+            .catch((error) => {
+                setMessageSending(false);
+                const message = error?.response?.data?.message;
+                setInputErrorMessage(
+                    message || "An error occured while sending message"
+                );
+            });
+    }
 
     return (
         <div className="flex flex-wrap items-start border-t border-slate-700 py-3">
@@ -30,8 +80,8 @@ const MessageInput = ({conversation = null}) => {
 
             <div className="order-1 px-3 xs:p-0 min-w-[220px] basis-full xs:basis-0 xs:order-2 flex-1 relative">
                 <div className="flex">
-                    <NewMessageInput value={newMessage} onChange={(event) => setNewMessage(event.target.value)}/>
-                    <button className="btn btn-info rounded-l-none">
+                    <NewMessageInput value={newMessage} onSend={onSendClick} onChange={(event) => setNewMessage(event.target.value)}/>
+                    <button onClick={onSendClick} className="btn btn-info rounded-l-none">
                     {messageSending && (
                         <span className="loading loading-spinner loading-xs"></span>
                     )}
