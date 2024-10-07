@@ -15,6 +15,10 @@ const MessageInput = ({conversation = null}) => {
     const[messageSending,setMessageSending] = useState(false)
 
     const onSendClick = () => {
+        if(messageSending){
+            return;
+        }
+
         if(newMessage.trim() === ""){
             setInputErrorMessage("Please provide a message or upload an attachment.")
             setTimeout(()=>{setInputErrorMessage("")}, 3000);
@@ -30,18 +34,6 @@ const MessageInput = ({conversation = null}) => {
         }
 
         setMessageSending(true);
-        // axios.post(route("message.store"), formData, {
-        //     onUploadProgress: (progressEvent) => {
-        //         const progress = Math.round((progressEvent.loaded/progressEvent.total)*100);
-        //         console.log(progress, "%")
-        //     }
-        // }).then((res) => {
-        //     setNewMessage("");
-        //     setMessageSending(false);
-        // }).catch((err) => {
-        //     setMessageSending(false);
-        // });
-
         axios
             .post(route("message.store"), formData, {
                 onUploadProgress: (ProgressEvent) => {
