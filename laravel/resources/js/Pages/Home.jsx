@@ -65,10 +65,10 @@ function Home({ selectedConversation = null, messages = null }) {
             });
     }, [localMessages, noMoreMessages]);
 
-    const onAttachmentClick = (attachments, ind) => {
+    const onAttachmentClick = (attachments, index) => {
         setPreviewAttachment({
             attachments,
-            ind,
+            index,
         });
         setShowAttachmentPreview(true);
     };
@@ -175,7 +175,7 @@ function Home({ selectedConversation = null, messages = null }) {
             {previewAttachment.attachments && (
                 <AttachmentPreviewModal
                     attachments={previewAttachment.attachments}
-                    index={previewAttachment.ind}
+                    index={previewAttachment.index}
                     show={showAttachmentPreview}
                     onClose={() => setShowAttachmentPreview(false)}
                 />

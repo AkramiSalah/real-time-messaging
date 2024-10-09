@@ -11,7 +11,7 @@ import NewMessageInput from './NewMessageInput';
 import axios from "axios";
 import EmojiPicker from "emoji-picker-react"
 import { Popover, Transition } from "@headlessui/react";
-import CustomAudioPlayer from
+
 
 const MessageInput = ({conversation = null}) => {
     const [newMessage,setNewMessage] = useState("")
@@ -159,7 +159,7 @@ const MessageInput = ({conversation = null}) => {
                             {isAudio(file.file) && (
                                 <CustomAudioPlayer
                                     file={file}
-                                    showVolume=}{false}
+                                    showVolume={false}
                                 />
                             )}
                             {!isImage(file.file) && !isAudio(file.file) && (
